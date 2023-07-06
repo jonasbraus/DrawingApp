@@ -9,10 +9,10 @@ let hintContext
 let canvas
 let downLink
 let lastPositions = []
-let strokeWidth = 5
+let strokeWidth = 2
 let lastMouse = 0
 let eraserColor = "rgb(255, 255, 255)"
-let lastStrokeWidthPencil = 5, lastStrokeWidthEraser = 20, lastStrokeWidthRect = 5, lastStrokeWidthCircle = 5, lastStrokeWidthLine = 5
+let lastStrokeWidthPencil = 2, lastStrokeWidthEraser = 20, lastStrokeWidthRect = 2, lastStrokeWidthCircle = 2, lastStrokeWidthLine = 2
 
 let formAnchor = null;
 let textInput
