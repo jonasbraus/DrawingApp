@@ -11,7 +11,7 @@ let lastPositions = []
 let strokeWidth = 5
 let lastMouse = 0
 let eraserColor = "rgb(255, 255, 255)"
-let lastStrokeWidthPencil = 5, lastStrokeWidthEraser = 5, lastStrokeWidthRect = 5, lastStrokeWidthCircle = 5
+let lastStrokeWidthPencil = 5, lastStrokeWidthEraser = 5, lastStrokeWidthRect = 5, lastStrokeWidthCircle = 5, lastStrokeWidthLine = 5
 
 let formAnchor = null;
 
@@ -111,6 +111,9 @@ export default function App() {
             setHintHeight(0)
             setDisplayHint(true)
         }
+        else if(selectedTool === "line") {
+            formAnchor = new Position(e.pageX, e.pageY)
+        }
     }
 
     function handleMouseUpCanvas(e) {
@@ -134,6 +137,15 @@ export default function App() {
         } else if(selectedTool === "selector") {
             context.fillStyle = eraserColor
             context.fillRect(formAnchor.x, formAnchor.y, e.pageX - formAnchor.x, e.pageY - formAnchor.y)
+        }
+        else if(selectedTool === "line") {
+            context.strokeStyle = colorValue
+            context.beginPath()
+            context.lineWidth = strokeWidthSliderValue
+            context.moveTo(formAnchor.x, formAnchor.y)
+            context.lineTo(e.pageX, e.pageY)
+            context.stroke()
+            context.moveTo(0, 0)
         }
 
         setDisplayHint(false)
@@ -203,6 +215,10 @@ export default function App() {
             setStrokeWidthSliderValue(lastStrokeWidthCircle)
             strokeWidth = lastStrokeWidthCircle
         }
+        else if (e.target.value === "line") {
+            setStrokeWidthSliderValue(lastStrokeWidthLine)
+            strokeWidth = lastStrokeWidthLine
+        }
     }
 
     return (
@@ -221,10 +237,12 @@ export default function App() {
             </canvas>
 
             <div id={"recthint"} style={{
-                display: displayHint ? "block" : "none",
+                display: displayHint ? "flex" : "none",
+                justifyContent: "center",
+                alignItems: "center",
                 position: "absolute",
                 background: "rgba(0, 0, 0, 0)",
-                border: (selectedTool === "selector" ? 2 : strokeWidthSliderValue) + "px " + hintBorder + " " + colorValue,
+                border: (selectedTool === "selector" ? 2 : strokeWidthSliderValue) + "px " + hintBorder + " " + (selectedTool === "selector" ? "black" : colorValue),
                 left: hintX,
                 top: hintY,
                 width: hintWidth,
@@ -232,7 +250,7 @@ export default function App() {
                 pointerEvents: "none",
                 borderRadius: hintRadius
             }}>
-
+                <p style={{display: (selectedTool === "selector" ? "block" : "none"), textAlign: "center", fontSize: 30, userSelect: "none"}}>X</p>
             </div>
 
             <div id="menubar" style={{
@@ -382,6 +400,43 @@ export default function App() {
                                     gap: 10
                                 }}>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                         className="bi bi-dash" viewBox="0 0 16 16">
+                                        <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/>
+                                    </svg>
+                                    <input type={"radio"} value={"line"} name={"tool"}
+                                           style={{width: 20, height: 20, pointerEvents: "auto"}}
+                                           checked={selectedTool === "line"} onChange={e => {
+                                        handleToolChange(e)
+                                    }}/>
+                                </div>
+
+                                <div style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    justifyContent: "flex-end",
+                                    gap: 10
+                                }}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                         className="bi bi-fonts" viewBox="0 0 16 16">
+                                        <path
+                                            d="M12.258 3h-8.51l-.083 2.46h.479c.26-1.544.758-1.783 2.693-1.845l.424-.013v7.827c0 .663-.144.82-1.3.923v.52h4.082v-.52c-1.162-.103-1.306-.26-1.306-.923V3.602l.431.013c1.934.062 2.434.301 2.693 1.846h.479L12.258 3z"/>
+                                    </svg>
+                                    <input type={"radio"} value={"text"} name={"tool"}
+                                           style={{width: 20, height: 20, pointerEvents: "auto"}}
+                                           checked={selectedTool === "text"} onChange={e => {
+                                        handleToolChange(e)
+                                    }}/>
+                                </div>
+
+                                <div style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    justifyContent: "flex-end",
+                                    gap: 10
+                                }}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                          className="bi bi-x-lg" viewBox="0 0 16 16">
                                         <path
                                             d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
@@ -405,6 +460,8 @@ export default function App() {
                                     lastStrokeWidthRect = strokeWidth;
                                 } else if (selectedTool === "circle") {
                                     lastStrokeWidthCircle = strokeWidth
+                                } else if(selectedTool === "line") {
+                                    lastStrokeWidthLine = strokeWidth
                                 }
 
                             }} style={{pointerEvents: "auto", display: (selectedTool === "selector" ? "none" : "block")}}/>
