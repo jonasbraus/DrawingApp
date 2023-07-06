@@ -229,6 +229,8 @@ export default function App() {
     }
 
     function handleToolChange(e) {
+        setShowTextInput(false)
+        hintContext.clearRect(0, 0, 5000, 3000)
         setSelectedTool(e.target.value)
         if (e.target.value === "pencil") {
             setStrokeWidthSliderValue(lastStrokeWidthPencil)
@@ -313,6 +315,9 @@ export default function App() {
                          mouseMenuBarOffsetX = e.pageX - e.currentTarget.getBoundingClientRect().left
                          mouseMenuBarOffsetY = e.pageY - e.currentTarget.getBoundingClientRect().top
                      }
+
+                     hintContext.clearRect(0, 0, 5000, 3000)
+                     setShowTextInput(false)
                  }}
                  onMouseUp={(e) => {
                      mouseDownMenuBar = false
