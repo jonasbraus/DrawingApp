@@ -15,6 +15,7 @@ let eraserColor = "rgb(255, 255, 255)"
 let lastStrokeWidthPencil = 5, lastStrokeWidthEraser = 5, lastStrokeWidthRect = 5, lastStrokeWidthCircle = 5, lastStrokeWidthLine = 5
 
 let formAnchor = null;
+let textInput
 
 export default function App() {
 
@@ -24,6 +25,7 @@ export default function App() {
         clearScreen("rgb(255, 255, 255)")
         downLink = document.createElement("a")
         downLink.className = "no-display"
+        textInput = document.getElementById("textInput")
 
         let hintCanvas = document.getElementById("hintCanvas")
         hintContext = hintCanvas.getContext("2d")
@@ -61,6 +63,9 @@ export default function App() {
     const [colorValue, setColorValue] = useState("#000000")
     const [menuBarShown, setMenuBarShown] = useState(true)
     const [selectedTool, setSelectedTool] = useState("pencil")
+    const [textInputX, setTextInputX] = useState(0)
+    const [textInputY, setTextInputY] = useState(0)
+    const [showTextInput, setShowTextInput] = useState(false)
 
     class Position {
         constructor(x, y) {
@@ -77,6 +82,8 @@ export default function App() {
 
     function handleMouseDownCanvas(e) {
         mouseDownCanvas = true
+        hintContext.clearRect(0, 0, 5000, 3000)
+        setShowTextInput(false)
         context.fillStyle = selectedTool !== "eraser" ? colorValue : eraserColor
         if (selectedTool === "pencil" || selectedTool === "eraser") {
             context.beginPath()
@@ -85,9 +92,20 @@ export default function App() {
 
             lastMouse = Date.now()
             lastPositions.push(new Position(e.pageX, e.pageY))
-        } else if (selectedTool === "rect" || selectedTool === "circle" || selectedTool === "selector" || selectedTool === "line") {
+        } else {
 
             formAnchor = new Position(e.pageX, e.pageY)
+        }
+        if(selectedTool === "text") {
+            mouseDownCanvas = false
+            setTextInputX(e.pageX)
+            setTextInputY(e.pageY)
+            setShowTextInput(true)
+
+            hintContext.beginPath()
+            hintContext.fillStyle = "black"
+            hintContext.arc(e.pageX, e.pageY, 5, 0, 2*Math.PI, false)
+            hintContext.fill()
         }
     }
 
@@ -233,6 +251,25 @@ export default function App() {
                     height={3000}
             >
             </canvas>
+
+            <input autoFocus={true} id={"textInput"} type={"text"} style={{
+                display: (showTextInput ? "block" : "none"),
+                position: "absolute",
+                top: textInputY,
+                left: textInputX,
+                fontSize: 25,
+                fontFamily: "serif"
+            }} onKeyDown={e => {
+                if(e.key === "Enter") {
+                    mouseDownCanvas = false
+                    context.font = "25px serif"
+                    context.textAlign = "center"
+                    context.fillText(textInput.value, formAnchor.x, formAnchor.y)
+                    textInput.value = ""
+                    setShowTextInput(false)
+                    hintContext.clearRect(0, 0, 5000, 3000)
+                }
+            }}/>
 
             <div id="menubar" style={{
                 position: "fixed",
