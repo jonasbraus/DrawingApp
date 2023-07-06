@@ -5,6 +5,7 @@ let mouseDownMenuBar = false
 let mouseDownCanvas = false
 let mouseMenuBarOffsetX, mouseMenuBarOffsetY = 0
 let context
+let hintContext
 let canvas
 let downLink
 let lastPositions = []
@@ -24,6 +25,8 @@ export default function App() {
         downLink = document.createElement("a")
         downLink.className = "no-display"
 
+        let hintCanvas = document.getElementById("hintCanvas")
+        hintContext = hintCanvas.getContext("2d")
 
         window.scrollTo((5000 / window.innerWidth) * 500, (3000 / window.innerHeight) * 300)
 
@@ -59,14 +62,6 @@ export default function App() {
     const [menuBarShown, setMenuBarShown] = useState(true)
     const [selectedTool, setSelectedTool] = useState("pencil")
 
-    const [displayHint, setDisplayHint] = useState(false)
-    const [hintX, setHintX] = useState(0)
-    const [hintY, setHintY] = useState(0)
-    const [hintWidth, setHintWidth] = useState(0)
-    const [hintHeight, setHintHeight] = useState(0)
-    const [hintRadius, setHintRadius] = useState(0)
-    const [hintBorder, setHintBorder] = useState("solid")
-
     class Position {
         constructor(x, y) {
             this.x = x
@@ -90,28 +85,8 @@ export default function App() {
 
             lastMouse = Date.now()
             lastPositions.push(new Position(e.pageX, e.pageY))
-        } else if (selectedTool === "rect" || selectedTool === "circle" || selectedTool === "selector") {
-            if (selectedTool === "circle") {
-                setHintRadius(10000000)
-            } else {
-                setHintRadius(0)
-            }
+        } else if (selectedTool === "rect" || selectedTool === "circle" || selectedTool === "selector" || selectedTool === "line") {
 
-            if(selectedTool === "selector") {
-                setHintBorder("dashed")
-            }
-            else{
-                setHintBorder("solid")
-            }
-
-            formAnchor = new Position(e.pageX, e.pageY)
-            setHintX(e.pageX)
-            setHintY(e.pageY)
-            setHintWidth(0)
-            setHintHeight(0)
-            setDisplayHint(true)
-        }
-        else if(selectedTool === "line") {
             formAnchor = new Position(e.pageX, e.pageY)
         }
     }
@@ -148,7 +123,7 @@ export default function App() {
             context.moveTo(0, 0)
         }
 
-        setDisplayHint(false)
+        hintContext.clearRect(0, 0, 5000, 3000)
     }
 
     function handleMouseMove(e) {
@@ -160,32 +135,43 @@ export default function App() {
             setMenuBarLeft(mouseX - mouseMenuBarOffsetX)
             setMenuBarTop(mouseY - mouseMenuBarOffsetY)
         } else if (mouseDownCanvas) {
+            hintContext.clearRect(0, 0, 5000, 3000)
             if (selectedTool === "pencil" || selectedTool === "eraser") {
                 context.fillStyle = selectedTool !== "eraser" ? colorValue : eraserColor
 
                 lastPositions.push(new Position(mouseX, mouseY))
 
                 lastMouse = Date.now()
-            } else if (selectedTool === "rect" || selectedTool === "circle" || selectedTool === "selector") {
+            } else if (selectedTool === "rect" || selectedTool === "circle" || selectedTool === "selector" || selectedTool === "line") {
+                hintContext.strokeStyle = colorValue
+                hintContext.lineWidth = strokeWidthSliderValue
 
-                if (e.pageX >= formAnchor.x) {
-                    setHintX(formAnchor.x)
-                        setHintWidth(e.pageX - formAnchor.x)
-
-                } else {
-                    setHintX(e.pageX)
-                        setHintWidth(formAnchor.x - e.pageX)
-
-
+                if(selectedTool === "selector") {
+                    hintContext.setLineDash([10, 15])
+                    hintContext.lineWidth = 3
                 }
-                if (e.pageY >= formAnchor.y) {
-                    setHintY(formAnchor.y)
-                        setHintHeight(e.pageY - hintY)
+                else {
+                    hintContext.setLineDash([])
+                }
 
-                } else {
-                    setHintY(e.pageY)
-                        setHintHeight(formAnchor.y - e.pageY)
+                hintContext.beginPath()
 
+                if(selectedTool === "rect" || selectedTool === "selector") {
+                    hintContext.rect(formAnchor.x, formAnchor.y, mouseX - formAnchor.x, mouseY - formAnchor.y)
+                    hintContext.stroke()
+                }
+
+                if(selectedTool === "circle") {
+                    let radius = (mouseX - formAnchor.x) / 2
+                    let yRad = (mouseY - formAnchor.y) / 2
+                    hintContext.arc(formAnchor.x + radius, formAnchor.y + yRad, Math.abs(radius), 0, 2 * Math.PI, false)
+                    hintContext.stroke()
+                }
+
+                if(selectedTool === "line") {
+                    hintContext.moveTo(formAnchor.x, formAnchor.y)
+                    hintContext.lineTo(mouseX, mouseY)
+                    hintContext.stroke()
                 }
             }
         }
@@ -236,22 +222,17 @@ export default function App() {
             >
             </canvas>
 
-            <div id={"recthint"} style={{
-                display: displayHint ? "flex" : "none",
-                justifyContent: "center",
-                alignItems: "center",
-                position: "absolute",
-                background: "rgba(0, 0, 0, 0)",
-                border: (selectedTool === "selector" ? 2 : strokeWidthSliderValue) + "px " + hintBorder + " " + (selectedTool === "selector" ? "black" : colorValue),
-                left: hintX,
-                top: hintY,
-                width: hintWidth,
-                height: hintHeight,
+            <canvas id="hintCanvas" style={{
+                backgroundColor: "rgba(255, 255, 255, 0)",
                 pointerEvents: "none",
-                borderRadius: hintRadius
-            }}>
-                <p style={{display: (selectedTool === "selector" ? "block" : "none"), textAlign: "center", fontSize: 30, userSelect: "none"}}>X</p>
-            </div>
+                position: "absolute",
+                left: 0,
+                top: 0
+            }}
+                    width={5000}
+                    height={3000}
+            >
+            </canvas>
 
             <div id="menubar" style={{
                 position: "fixed",
