@@ -1,5 +1,5 @@
 import './App.css';
-import {useLayoutEffect, useState} from "react";
+import {useLayoutEffect, useRef, useState} from "react";
 
 let mouseDownMenuBar = false
 let mouseDownCanvas = false
@@ -67,6 +67,7 @@ export default function App() {
     const [textInputY, setTextInputY] = useState(0)
     const [showTextInput, setShowTextInput] = useState(false)
 
+
     class Position {
         constructor(x, y) {
             this.x = x
@@ -98,10 +99,9 @@ export default function App() {
         }
         if(selectedTool === "text") {
             mouseDownCanvas = false
-            setTextInputX(e.pageX)
-            setTextInputY(e.pageY)
+            setTextInputX(e.pageX + 10)
+            setTextInputY(e.pageY + 10)
             setShowTextInput(true)
-
             hintContext.beginPath()
             hintContext.fillStyle = "black"
             hintContext.arc(e.pageX, e.pageY, 5, 0, 2*Math.PI, false)
@@ -141,7 +141,12 @@ export default function App() {
             context.moveTo(0, 0)
         }
 
-        hintContext.clearRect(0, 0, 5000, 3000)
+        if(selectedTool !== "text") {
+            hintContext.clearRect(0, 0, 5000, 3000)
+        }
+        else {
+            textInput.focus()
+        }
     }
 
     function handleMouseMove(e) {
@@ -167,6 +172,7 @@ export default function App() {
                 if(selectedTool === "selector") {
                     hintContext.setLineDash([10, 15])
                     hintContext.lineWidth = 3
+                    hintContext.strokeStyle = "rgb(200, 0, 0)"
                 }
                 else {
                     hintContext.setLineDash([])
@@ -252,19 +258,19 @@ export default function App() {
             >
             </canvas>
 
-            <input autoFocus={true} id={"textInput"} type={"text"} style={{
+            <input autoFocus name={"textInput"} id={"textInput"} type={"text"} style={{
                 display: (showTextInput ? "block" : "none"),
                 position: "absolute",
                 top: textInputY,
                 left: textInputX,
                 fontSize: 25,
-                fontFamily: "serif"
+                fontFamily: "sans-serif"
             }} onKeyDown={e => {
                 if(e.key === "Enter") {
                     mouseDownCanvas = false
-                    context.font = "25px serif"
+                    context.font = "25px sans-serif"
                     context.textAlign = "center"
-                    context.fillText(textInput.value, formAnchor.x, formAnchor.y)
+                    context.fillText(textInput.value, formAnchor.x, formAnchor.y + 10)
                     textInput.value = ""
                     setShowTextInput(false)
                     hintContext.clearRect(0, 0, 5000, 3000)
@@ -482,8 +488,8 @@ export default function App() {
                                     lastStrokeWidthLine = strokeWidth
                                 }
 
-                            }} style={{pointerEvents: "auto", display: (selectedTool === "selector" ? "none" : "block")}}/>
-                            <p style={{userSelect: "none", display: (selectedTool === "selector" ? "none" : "block")}}>{strokeWidthSliderValue}</p>
+                            }} style={{pointerEvents: "auto", display: ((selectedTool === "selector" || selectedTool === "text") ? "none" : "block")}}/>
+                            <p style={{userSelect: "none", display: ((selectedTool === "selector" || selectedTool === "text") ? "none" : "block")}}>{strokeWidthSliderValue}</p>
                         </div>
 
                         {/*Color Selector*/}
