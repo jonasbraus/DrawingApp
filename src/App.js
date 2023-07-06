@@ -82,70 +82,74 @@ export default function App() {
     }
 
     function handleMouseDownCanvas(e) {
-        mouseDownCanvas = true
-        hintContext.clearRect(0, 0, 5000, 3000)
-        setShowTextInput(false)
-        context.fillStyle = selectedTool !== "eraser" ? colorValue : eraserColor
-        if (selectedTool === "pencil" || selectedTool === "eraser") {
-            context.beginPath()
-            context.arc(e.pageX, e.pageY, strokeWidthSliderValue, 0, 2 * Math.PI, false)
-            context.fill()
+        if(e.button === 0) {
+            mouseDownCanvas = true
+            hintContext.clearRect(0, 0, 5000, 3000)
+            setShowTextInput(false)
+            context.fillStyle = selectedTool !== "eraser" ? colorValue : eraserColor
+            if (selectedTool === "pencil" || selectedTool === "eraser") {
+                context.beginPath()
+                context.arc(e.pageX, e.pageY, strokeWidthSliderValue, 0, 2 * Math.PI, false)
+                context.fill()
 
-            lastMouse = Date.now()
-            lastPositions.push(new Position(e.pageX, e.pageY))
-        } else {
+                lastMouse = Date.now()
+                lastPositions.push(new Position(e.pageX, e.pageY))
+            } else {
 
-            formAnchor = new Position(e.pageX, e.pageY)
-        }
-        if(selectedTool === "text") {
-            mouseDownCanvas = false
-            setTextInputX(e.pageX + 10)
-            setTextInputY(e.pageY + 10)
-            setShowTextInput(true)
-            hintContext.beginPath()
-            hintContext.fillStyle = "black"
-            hintContext.arc(e.pageX, e.pageY, 5, 0, 2*Math.PI, false)
-            hintContext.fill()
+                formAnchor = new Position(e.pageX, e.pageY)
+            }
+            if(selectedTool === "text") {
+                mouseDownCanvas = false
+                setTextInputX(e.pageX + 10)
+                setTextInputY(e.pageY + 10)
+                setShowTextInput(true)
+                hintContext.beginPath()
+                hintContext.fillStyle = "black"
+                hintContext.arc(e.pageX, e.pageY, 5, 0, 2*Math.PI, false)
+                hintContext.fill()
+            }
         }
     }
 
     function handleMouseUpCanvas(e) {
-        mouseDownCanvas = false
+        if(e.button === 0) {
+            mouseDownCanvas = false
 
-        if (selectedTool === "rect") {
-            context.strokeStyle = colorValue
-            context.beginPath()
-            context.rect(formAnchor.x, formAnchor.y, e.pageX - formAnchor.x, e.pageY - formAnchor.y)
-            context.lineWidth = strokeWidthSliderValue
-            context.stroke()
+            if (selectedTool === "rect") {
+                context.strokeStyle = colorValue
+                context.beginPath()
+                context.rect(formAnchor.x, formAnchor.y, e.pageX - formAnchor.x, e.pageY - formAnchor.y)
+                context.lineWidth = strokeWidthSliderValue
+                context.stroke()
 
-        } else if (selectedTool === "circle") {
-            context.strokeStyle = colorValue
-            context.beginPath()
-            let radius = (e.pageX - formAnchor.x) / 2
-            let yRad = (e.pageY - formAnchor.y) / 2
-            context.arc(formAnchor.x + radius, formAnchor.y + yRad, Math.abs(radius), 0, 2 * Math.PI, false)
-            context.lineWidth = strokeWidthSliderValue
-            context.stroke()
-        } else if(selectedTool === "selector") {
-            context.fillStyle = eraserColor
-            context.fillRect(formAnchor.x, formAnchor.y, e.pageX - formAnchor.x, e.pageY - formAnchor.y)
-        }
-        else if(selectedTool === "line") {
-            context.strokeStyle = colorValue
-            context.beginPath()
-            context.lineWidth = strokeWidthSliderValue
-            context.moveTo(formAnchor.x, formAnchor.y)
-            context.lineTo(e.pageX, e.pageY)
-            context.stroke()
-            context.moveTo(0, 0)
-        }
+            } else if (selectedTool === "circle") {
+                context.strokeStyle = colorValue
+                context.beginPath()
+                let radius = (e.pageX - formAnchor.x) / 2
+                let yRad = (e.pageY - formAnchor.y) / 2
+                context.arc(formAnchor.x + radius, formAnchor.y + yRad, Math.abs(radius), 0, 2 * Math.PI, false)
+                context.lineWidth = strokeWidthSliderValue
+                context.stroke()
+            } else if(selectedTool === "selector") {
+                context.fillStyle = eraserColor
+                context.fillRect(formAnchor.x, formAnchor.y, e.pageX - formAnchor.x, e.pageY - formAnchor.y)
+            }
+            else if(selectedTool === "line") {
+                context.strokeStyle = colorValue
+                context.beginPath()
+                context.lineWidth = strokeWidthSliderValue
+                context.moveTo(formAnchor.x, formAnchor.y)
+                context.lineTo(e.pageX, e.pageY)
+                context.stroke()
+                context.moveTo(0, 0)
+            }
 
-        if(selectedTool !== "text") {
-            hintContext.clearRect(0, 0, 5000, 3000)
-        }
-        else {
-            textInput.focus()
+            if(selectedTool !== "text") {
+                hintContext.clearRect(0, 0, 5000, 3000)
+            }
+            else {
+                textInput.focus()
+            }
         }
     }
 
