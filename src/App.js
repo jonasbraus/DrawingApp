@@ -12,22 +12,24 @@ let lastPositions = []
 let strokeWidth = 2
 let lastMouse = 0
 let eraserColor = "rgb(255, 255, 255)"
-let lastStrokeWidthPencil = 2, lastStrokeWidthEraser = 20, lastStrokeWidthRect = 2, lastStrokeWidthCircle = 2, lastStrokeWidthLine = 2
+let lastStrokeWidthPencil = 2, lastStrokeWidthEraser = 20, lastStrokeWidthRect = 2, lastStrokeWidthCircle = 2,
+    lastStrokeWidthLine = 2
 
 let formAnchor = null;
 let textInput
+
+let fileInput
 
 export default function App() {
 
     useLayoutEffect(() => {
 
-        window.addEventListener("beforeunload", e => {
-            e.preventDefault()
-            e.returnValue = ""
-        })
-
         canvas = document.getElementById("canvas")
         context = canvas.getContext("2d")
+
+        fileInput = document.getElementById("fileInput")
+
+
         clearScreen("rgb(255, 255, 255)")
         downLink = document.createElement("a")
         downLink.className = "no-display"
@@ -88,7 +90,7 @@ export default function App() {
     }
 
     function handleMouseDownCanvas(e) {
-        if(e.button === 0) {
+        if (e.button === 0) {
             mouseDownCanvas = true
             hintContext.clearRect(0, 0, 5000, 3000)
             setShowTextInput(false)
@@ -104,21 +106,21 @@ export default function App() {
 
                 formAnchor = new Position(e.pageX, e.pageY)
             }
-            if(selectedTool === "text") {
+            if (selectedTool === "text") {
                 mouseDownCanvas = false
                 setTextInputX(e.pageX + 10)
                 setTextInputY(e.pageY + 10)
                 setShowTextInput(true)
                 hintContext.beginPath()
                 hintContext.fillStyle = "black"
-                hintContext.arc(e.pageX, e.pageY, 5, 0, 2*Math.PI, false)
+                hintContext.arc(e.pageX, e.pageY, 5, 0, 2 * Math.PI, false)
                 hintContext.fill()
             }
         }
     }
 
     function handleMouseUpCanvas(e) {
-        if(e.button === 0) {
+        if (e.button === 0) {
             mouseDownCanvas = false
 
             if (selectedTool === "rect") {
@@ -136,11 +138,10 @@ export default function App() {
                 context.arc(formAnchor.x + radius, formAnchor.y + yRad, Math.abs(radius), 0, 2 * Math.PI, false)
                 context.lineWidth = strokeWidthSliderValue
                 context.stroke()
-            } else if(selectedTool === "selector") {
+            } else if (selectedTool === "selector") {
                 context.fillStyle = eraserColor
                 context.fillRect(formAnchor.x, formAnchor.y, e.pageX - formAnchor.x, e.pageY - formAnchor.y)
-            }
-            else if(selectedTool === "line") {
+            } else if (selectedTool === "line") {
                 context.strokeStyle = colorValue
                 context.beginPath()
                 context.lineWidth = strokeWidthSliderValue
@@ -150,10 +151,9 @@ export default function App() {
                 context.moveTo(0, 0)
             }
 
-            if(selectedTool !== "text") {
+            if (selectedTool !== "text") {
                 hintContext.clearRect(0, 0, 5000, 3000)
-            }
-            else {
+            } else {
                 textInput.focus()
             }
         }
@@ -187,30 +187,29 @@ export default function App() {
                 hintContext.strokeStyle = colorValue
                 hintContext.lineWidth = strokeWidthSliderValue
 
-                if(selectedTool === "selector") {
+                if (selectedTool === "selector") {
                     hintContext.setLineDash([10, 15])
                     hintContext.lineWidth = 3
                     hintContext.strokeStyle = "rgb(200, 0, 0)"
-                }
-                else {
+                } else {
                     hintContext.setLineDash([])
                 }
 
                 hintContext.beginPath()
 
-                if(selectedTool === "rect" || selectedTool === "selector") {
+                if (selectedTool === "rect" || selectedTool === "selector") {
                     hintContext.rect(formAnchor.x, formAnchor.y, mouseX - formAnchor.x, mouseY - formAnchor.y)
                     hintContext.stroke()
                 }
 
-                if(selectedTool === "circle") {
+                if (selectedTool === "circle") {
                     let radius = (mouseX - formAnchor.x) / 2
                     let yRad = (mouseY - formAnchor.y) / 2
                     hintContext.arc(formAnchor.x + radius, formAnchor.y + yRad, Math.abs(radius), 0, 2 * Math.PI, false)
                     hintContext.stroke()
                 }
 
-                if(selectedTool === "line") {
+                if (selectedTool === "line") {
                     hintContext.moveTo(formAnchor.x, formAnchor.y)
                     hintContext.lineTo(mouseX, mouseY)
                     hintContext.stroke()
@@ -226,6 +225,20 @@ export default function App() {
         downLink.href = img
         downLink.download = "export.png"
         downLink.click()
+    }
+
+    function onSaveButtonClick()
+    {
+        let img = canvas.toDataURL("image/png")
+        let blob = new Blob([img], {type: "text/plain"})
+        var url = URL.createObjectURL(blob)
+        downLink.href = url
+        downLink.download = "save.redraw"
+        downLink.click()
+    }
+
+    function onOpenButtonClick() {
+        fileInput.click()
     }
 
     function handleToolChange(e) {
@@ -244,8 +257,7 @@ export default function App() {
         } else if (e.target.value === "circle") {
             setStrokeWidthSliderValue(lastStrokeWidthCircle)
             strokeWidth = lastStrokeWidthCircle
-        }
-        else if (e.target.value === "line") {
+        } else if (e.target.value === "line") {
             setStrokeWidthSliderValue(lastStrokeWidthLine)
             strokeWidth = lastStrokeWidthLine
         }
@@ -286,7 +298,7 @@ export default function App() {
                 fontSize: 25,
                 fontFamily: "sans-serif"
             }} onKeyDown={e => {
-                if(e.key === "Enter") {
+                if (e.key === "Enter") {
                     mouseDownCanvas = false
                     context.font = "25px sans-serif"
                     context.textAlign = "center"
@@ -507,12 +519,18 @@ export default function App() {
                                     lastStrokeWidthRect = strokeWidth;
                                 } else if (selectedTool === "circle") {
                                     lastStrokeWidthCircle = strokeWidth
-                                } else if(selectedTool === "line") {
+                                } else if (selectedTool === "line") {
                                     lastStrokeWidthLine = strokeWidth
                                 }
 
-                            }} style={{pointerEvents: "auto", display: ((selectedTool === "selector" || selectedTool === "text") ? "none" : "block")}}/>
-                            <p style={{userSelect: "none", display: ((selectedTool === "selector" || selectedTool === "text") ? "none" : "block")}}>{strokeWidthSliderValue}</p>
+                            }} style={{
+                                pointerEvents: "auto",
+                                display: ((selectedTool === "selector" || selectedTool === "text") ? "none" : "block")
+                            }}/>
+                            <p style={{
+                                userSelect: "none",
+                                display: ((selectedTool === "selector" || selectedTool === "text") ? "none" : "block")
+                            }}>{strokeWidthSliderValue}</p>
                         </div>
 
                         {/*Color Selector*/}
@@ -528,34 +546,90 @@ export default function App() {
                             setColorValue(e.target.value)
                         }} value={colorValue}/>
 
-                        {/*fill bucket*/}
-                        <button style={{
-                            backgroundColor: "white",
-                            borderWidth: 0,
-                            boxShadow: "0 0 5px gray",
-                            padding: 10,
-                            marginLeft: 10,
-                            borderRadius: 15,
-                            pointerEvents: "auto"
-                        }} onClick={() => {
-                            clearScreen(colorValue)
+                        <div style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            gap: 5
                         }}>
-                            Clear
-                        </button>
+                            {/*fill bucket*/}
+                            <button style={{
+                                backgroundColor: "white",
+                                borderWidth: 0,
+                                boxShadow: "0 0 5px gray",
+                                padding: 10,
+                                marginLeft: 10,
+                                borderRadius: 15,
+                                width: 60,
+                                pointerEvents: "auto"
+                            }} onClick={() => {
+                                clearScreen(colorValue)
+                            }}>
+                                Clear
+                            </button>
 
-                        {/*export button*/}
-                        <button style={{
-                            padding: 10,
-                            backgroundColor: "white",
-                            borderRadius: 15,
-                            marginLeft: 10,
-                            boxShadow: "0 0 5px gray",
-                            borderWidth: 0,
-                            pointerEvents: "auto"
-                        }}
-                                onClick={onExportButtonClick}
-                        >Export
-                        </button>
+                            {/*open button*/}
+                            <button style={{
+                                padding: 10,
+                                backgroundColor: "white",
+                                borderRadius: 15,
+                                marginLeft: 10,
+                                boxShadow: "0 0 5px gray",
+                                borderWidth: 0,
+                                width: 60,
+                                pointerEvents: "auto"
+                            }}
+                                    onClick={onOpenButtonClick}>
+                                Open
+                            </button>
+                            <input onChange={() => {
+                                let file = fileInput.files[0]
+
+                                let reader = new FileReader()
+                                reader.onload = e => {
+                                    let image = new Image()
+                                    image.onload = () => {
+                                        context.drawImage(image, 0, 0)
+                                    }
+                                    image.src = e.target.result
+                                }
+                                reader.readAsText(file)
+
+                            }} id={"fileInput"} type={"file"} accept={".redraw"} style={{pointerEvents: "auto", display: "none"}}/>
+
+
+                            {/*save button*/}
+                            <button style={{
+                                padding: 10,
+                                backgroundColor: "white",
+                                borderRadius: 15,
+                                marginLeft: 10,
+                                boxShadow: "0 0 5px gray",
+                                borderWidth: 0,
+                                width: 60,
+                                pointerEvents: "auto"
+                            }}
+                                    onClick={onSaveButtonClick}>
+                                Save
+                            </button>
+
+
+                            {/*export button*/}
+                            <button style={{
+                                padding: 10,
+                                backgroundColor: "white",
+                                borderRadius: 15,
+                                marginLeft: 10,
+                                boxShadow: "0 0 5px gray",
+                                borderWidth: 0,
+                                width: 60,
+                                pointerEvents: "auto"
+                            }}
+                                    onClick={onExportButtonClick}>
+                                Export
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
