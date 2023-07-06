@@ -24,6 +24,11 @@ export default function App() {
 
     useLayoutEffect(() => {
 
+        window.addEventListener("beforeunload", e => {
+            e.preventDefault()
+            e.returnValue = ""
+        })
+
         canvas = document.getElementById("canvas")
         context = canvas.getContext("2d")
 
