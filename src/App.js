@@ -157,6 +157,14 @@ export default function App() {
         let mouseX = e.pageX
         let mouseY = e.pageY
 
+        if (selectedTool === "pencil" || selectedTool === "eraser") {
+            hintContext.clearRect(0, 0, 5000, 3000)
+            hintContext.beginPath()
+            hintContext.fillStyle = colorValue
+            hintContext.arc(mouseX, mouseY, strokeWidthSliderValue, 0, 2 * Math.PI, false)
+            hintContext.fill()
+        }
+
         if (mouseDownMenuBar) {
 
             setMenuBarLeft(mouseX - mouseMenuBarOffsetX)
@@ -238,7 +246,7 @@ export default function App() {
     return (
 
         <div onMouseMove={e => handleMouseMove(e)} style={{overflow: "unset"}}>
-            <canvas id="canvas" style={{backgroundColor: "rgb(255, 255, 255)"}}
+            <canvas id="canvas" style={{backgroundColor: "rgb(255, 255, 255)", cursor: "crosshair"}}
                     width={5000}
                     height={3000}
                     onMouseDown={e => {
@@ -477,7 +485,7 @@ export default function App() {
                                 </div>
                             </div>
 
-                            <input type={"range"} min={1} max={20} value={strokeWidthSliderValue} onChange={e => {
+                            <input type={"range"} min={1} max={40} value={strokeWidthSliderValue} onChange={e => {
                                 setStrokeWidthSliderValue(e.currentTarget.value)
                                 strokeWidth = e.currentTarget.value
                                 if (selectedTool === "pencil") {
