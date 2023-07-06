@@ -11,7 +11,7 @@ let lastPositions = []
 let strokeWidth = 5
 let lastMouse = 0
 let eraserColor = "rgb(255, 255, 255)"
-let lastStrokeWidthPencil = 5, lastStrokeWidthEraser = 5, lastStrokeWidthRect = 5
+let lastStrokeWidthPencil = 5, lastStrokeWidthEraser = 5, lastStrokeWidthRect = 5, lastStrokeWidthCircle = 5
 
 let formAnchor = null;
 
@@ -28,7 +28,7 @@ export default function App() {
         window.scrollTo((5000 / window.innerWidth) * 500, (3000 / window.innerHeight) * 300)
 
         setInterval(() => {
-            if(selectedTool === "pencil" || selectedTool === "eraser") {
+            if (selectedTool === "pencil" || selectedTool === "eraser") {
                 if (lastPositions.length >= 2) {
                     let point1 = lastPositions.shift()
                     let point2 = lastPositions[lastPositions.length - 1]
@@ -59,11 +59,13 @@ export default function App() {
     const [menuBarShown, setMenuBarShown] = useState(true)
     const [selectedTool, setSelectedTool] = useState("pencil")
 
-    const [displayRectHint, setDisplayRectHint] = useState(false)
-    const [rectHintX, setRectHintX] = useState(0)
-    const [rectHintY, setRectHintY] = useState(0)
-    const [rectHintWidth, setRectHintWidth] = useState(0)
-    const [rectHintHeight, setRectHintHeight] = useState(0)
+    const [displayHint, setDisplayHint] = useState(false)
+    const [hintX, setHintX] = useState(0)
+    const [hintY, setHintY] = useState(0)
+    const [hintWidth, setHintWidth] = useState(0)
+    const [hintHeight, setHintHeight] = useState(0)
+    const [hintRadius, setHintRadius] = useState(0)
+    const [hintBorder, setHintBorder] = useState("solid")
 
     class Position {
         constructor(x, y) {
@@ -81,38 +83,60 @@ export default function App() {
     function handleMouseDownCanvas(e) {
         mouseDownCanvas = true
         context.fillStyle = selectedTool !== "eraser" ? colorValue : eraserColor
-        if(selectedTool === "pencil" || selectedTool === "eraser") {
+        if (selectedTool === "pencil" || selectedTool === "eraser") {
             context.beginPath()
             context.arc(e.pageX, e.pageY, strokeWidthSliderValue, 0, 2 * Math.PI, false)
             context.fill()
 
             lastMouse = Date.now()
             lastPositions.push(new Position(e.pageX, e.pageY))
-        }
-        else if(selectedTool === "rect")
-        {
+        } else if (selectedTool === "rect" || selectedTool === "circle" || selectedTool === "selector") {
+            if (selectedTool === "circle") {
+                setHintRadius(10000000)
+            } else {
+                setHintRadius(0)
+            }
+
+            if(selectedTool === "selector") {
+                setHintBorder("dashed")
+            }
+            else{
+                setHintBorder("solid")
+            }
+
             formAnchor = new Position(e.pageX, e.pageY)
-            setRectHintX(e.pageX)
-            setRectHintY(e.pageY)
-            setRectHintWidth(0)
-            setRectHintHeight(0)
-            setDisplayRectHint(true)
+            setHintX(e.pageX)
+            setHintY(e.pageY)
+            setHintWidth(0)
+            setHintHeight(0)
+            setDisplayHint(true)
         }
     }
 
-    function handleMouseUpCanvas(e)
-    {
+    function handleMouseUpCanvas(e) {
         mouseDownCanvas = false
 
-        if(selectedTool === "rect") {
+        if (selectedTool === "rect") {
             context.strokeStyle = colorValue
             context.beginPath()
             context.rect(formAnchor.x, formAnchor.y, e.pageX - formAnchor.x, e.pageY - formAnchor.y)
             context.lineWidth = strokeWidthSliderValue
             context.stroke()
 
-            setDisplayRectHint(false)
+        } else if (selectedTool === "circle") {
+            context.strokeStyle = colorValue
+            context.beginPath()
+            let radius = (e.pageX - formAnchor.x) / 2
+            let yRad = (e.pageY - formAnchor.y) / 2
+            context.arc(formAnchor.x + radius, formAnchor.y + yRad, Math.abs(radius), 0, 2 * Math.PI, false)
+            context.lineWidth = strokeWidthSliderValue
+            context.stroke()
+        } else if(selectedTool === "selector") {
+            context.fillStyle = eraserColor
+            context.fillRect(formAnchor.x, formAnchor.y, e.pageX - formAnchor.x, e.pageY - formAnchor.y)
         }
+
+        setDisplayHint(false)
     }
 
     function handleMouseMove(e) {
@@ -124,29 +148,32 @@ export default function App() {
             setMenuBarLeft(mouseX - mouseMenuBarOffsetX)
             setMenuBarTop(mouseY - mouseMenuBarOffsetY)
         } else if (mouseDownCanvas) {
-            if(selectedTool === "pencil" || selectedTool === "eraser") {
+            if (selectedTool === "pencil" || selectedTool === "eraser") {
                 context.fillStyle = selectedTool !== "eraser" ? colorValue : eraserColor
 
                 lastPositions.push(new Position(mouseX, mouseY))
 
                 lastMouse = Date.now()
-            }
-            else if(selectedTool === "rect") {
-                if(e.pageX >= formAnchor.x) {
-                    setRectHintX(formAnchor.x)
-                    setRectHintWidth(e.pageX - formAnchor.x)
+            } else if (selectedTool === "rect" || selectedTool === "circle" || selectedTool === "selector") {
+
+                if (e.pageX >= formAnchor.x) {
+                    setHintX(formAnchor.x)
+                        setHintWidth(e.pageX - formAnchor.x)
+
+                } else {
+                    setHintX(e.pageX)
+                        setHintWidth(formAnchor.x - e.pageX)
+
+
                 }
-                else {
-                    setRectHintX(e.pageX)
-                    setRectHintWidth(formAnchor.x - e.pageX)
-                }
-                if(e.pageY >= formAnchor.y) {
-                    setRectHintY(formAnchor.y)
-                    setRectHintHeight(e.pageY - rectHintY)
-                }
-                else {
-                    setRectHintY(e.pageY)
-                    setRectHintHeight(formAnchor.y - e.pageY)
+                if (e.pageY >= formAnchor.y) {
+                    setHintY(formAnchor.y)
+                        setHintHeight(e.pageY - hintY)
+
+                } else {
+                    setHintY(e.pageY)
+                        setHintHeight(formAnchor.y - e.pageY)
+
                 }
             }
         }
@@ -172,6 +199,9 @@ export default function App() {
         } else if (e.target.value === "rect") {
             setStrokeWidthSliderValue(lastStrokeWidthRect)
             strokeWidth = lastStrokeWidthRect
+        } else if (e.target.value === "circle") {
+            setStrokeWidthSliderValue(lastStrokeWidthCircle)
+            strokeWidth = lastStrokeWidthCircle
         }
     }
 
@@ -191,15 +221,16 @@ export default function App() {
             </canvas>
 
             <div id={"recthint"} style={{
-                display: displayRectHint ? "block" : "none",
+                display: displayHint ? "block" : "none",
                 position: "absolute",
                 background: "rgba(0, 0, 0, 0)",
-                border: strokeWidthSliderValue + "px solid " + colorValue,
-                left: rectHintX,
-                top: rectHintY,
-                width: rectHintWidth,
-                height: rectHintHeight,
-                pointerEvents: "none"
+                border: (selectedTool === "selector" ? 2 : strokeWidthSliderValue) + "px " + hintBorder + " " + colorValue,
+                left: hintX,
+                top: hintY,
+                width: hintWidth,
+                height: hintHeight,
+                pointerEvents: "none",
+                borderRadius: hintRadius
             }}>
 
             </div>
@@ -311,6 +342,26 @@ export default function App() {
                                     justifyContent: "flex-end",
                                     gap: 10
                                 }}>
+
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                         className="bi bi-circle" viewBox="0 0 16 16">
+                                        <path
+                                            d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                    </svg>
+                                    <input type={"radio"} value={"circle"} name={"tool"}
+                                           style={{width: 20, height: 20, pointerEvents: "auto"}}
+                                           checked={selectedTool === "circle"} onChange={e => {
+                                        handleToolChange(e)
+                                    }}/>
+                                </div>
+
+                                <div style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    justifyContent: "flex-end",
+                                    gap: 10
+                                }}>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                          className="bi bi-square" viewBox="0 0 16 16">
                                         <path
@@ -319,6 +370,25 @@ export default function App() {
                                     <input type={"radio"} value={"rect"} name={"tool"}
                                            style={{width: 20, height: 20, pointerEvents: "auto"}}
                                            checked={selectedTool === "rect"} onChange={e => {
+                                        handleToolChange(e)
+                                    }}/>
+                                </div>
+
+                                <div style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    justifyContent: "flex-end",
+                                    gap: 10
+                                }}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                         className="bi bi-x-lg" viewBox="0 0 16 16">
+                                        <path
+                                            d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+                                    </svg>
+                                    <input type={"radio"} value={"selector"} name={"tool"}
+                                           style={{width: 20, height: 20, pointerEvents: "auto"}}
+                                           checked={selectedTool === "selector"} onChange={e => {
                                         handleToolChange(e)
                                     }}/>
                                 </div>
@@ -333,10 +403,12 @@ export default function App() {
                                     lastStrokeWidthEraser = strokeWidth;
                                 } else if (selectedTool === "rect") {
                                     lastStrokeWidthRect = strokeWidth;
+                                } else if (selectedTool === "circle") {
+                                    lastStrokeWidthCircle = strokeWidth
                                 }
 
-                            }} style={{pointerEvents: "auto"}}/>
-                            <p style={{userSelect: "none"}}>{strokeWidthSliderValue}</p>
+                            }} style={{pointerEvents: "auto", display: (selectedTool === "selector" ? "none" : "block")}}/>
+                            <p style={{userSelect: "none", display: (selectedTool === "selector" ? "none" : "block")}}>{strokeWidthSliderValue}</p>
                         </div>
 
                         {/*Color Selector*/}
