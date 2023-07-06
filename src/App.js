@@ -558,21 +558,6 @@ export default function App() {
                             alignItems: "center",
                             gap: 5
                         }}>
-                            {/*fill bucket*/}
-                            <button style={{
-                                backgroundColor: "white",
-                                borderWidth: 0,
-                                boxShadow: "0 0 5px gray",
-                                padding: 10,
-                                marginLeft: 10,
-                                borderRadius: 15,
-                                width: 60,
-                                pointerEvents: "auto"
-                            }} onClick={() => {
-                                clearScreen(colorValue)
-                            }}>
-                                Clear
-                            </button>
 
                             {/*open button*/}
                             <button style={{
