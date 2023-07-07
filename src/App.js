@@ -20,6 +20,10 @@ let textInput
 
 let fileInput
 
+let moverActive = false
+
+let moverWidth = 0, moverHeight = 0
+
 export default function App() {
 
     useLayoutEffect(() => {
@@ -34,8 +38,6 @@ export default function App() {
 
         fileInput = document.getElementById("fileInput")
 
-
-        clearScreen("rgb(255, 255, 255)")
         downLink = document.createElement("a")
         downLink.className = "no-display"
         textInput = document.getElementById("textInput")
@@ -88,44 +90,48 @@ export default function App() {
         }
     }
 
-    function clearScreen(color) {
-        context.fillStyle = color
-        context.fillRect(0, 0, 5000, 3000)
-        eraserColor = color
-    }
-
     function handleMouseDownCanvas(e) {
         if (e.button === 0) {
-            mouseDownCanvas = true
-            hintContext.clearRect(0, 0, 5000, 3000)
-            setShowTextInput(false)
-            context.fillStyle = selectedTool !== "eraser" ? colorValue : eraserColor
-            if (selectedTool === "pencil" || selectedTool === "eraser") {
-                context.beginPath()
-                context.arc(e.pageX, e.pageY, strokeWidthSliderValue, 0, 2 * Math.PI, false)
-                context.fill()
+            if(!moverActive) {
+                mouseDownCanvas = true
+                hintContext.clearRect(0, 0, 5000, 3000)
+                setShowTextInput(false)
+                context.fillStyle = selectedTool !== "eraser" ? colorValue : eraserColor
+                if (selectedTool === "pencil" || selectedTool === "eraser") {
+                    context.beginPath()
+                    context.arc(e.pageX, e.pageY, strokeWidthSliderValue, 0, 2 * Math.PI, false)
+                    context.fill()
 
-                lastMouse = Date.now()
-                lastPositions.push(new Position(e.pageX, e.pageY))
-            } else {
+                    lastMouse = Date.now()
+                    lastPositions.push(new Position(e.pageX, e.pageY))
+                } else {
 
-                formAnchor = new Position(e.pageX, e.pageY)
+                    formAnchor = new Position(e.pageX, e.pageY)
+                }
+                if (selectedTool === "text") {
+                    mouseDownCanvas = false
+                    setTextInputX(e.pageX + 10)
+                    setTextInputY(e.pageY + 10)
+                    setShowTextInput(true)
+                    hintContext.beginPath()
+                    hintContext.fillStyle = "black"
+                    hintContext.arc(e.pageX, e.pageY, 5, 0, 2 * Math.PI, false)
+                    hintContext.fill()
+                }
             }
-            if (selectedTool === "text") {
+            else {
+                context.drawImage(canvas, formAnchor.x, formAnchor.y, moverWidth, moverHeight, e.pageX - moverWidth, e.pageY - moverHeight, moverWidth, moverHeight)
+                context.clearRect(formAnchor.x, formAnchor.y, moverWidth, moverHeight)
+                hintContext.clearRect(0, 0, 5000, 3000)
+                moverActive = false
                 mouseDownCanvas = false
-                setTextInputX(e.pageX + 10)
-                setTextInputY(e.pageY + 10)
-                setShowTextInput(true)
-                hintContext.beginPath()
-                hintContext.fillStyle = "black"
-                hintContext.arc(e.pageX, e.pageY, 5, 0, 2 * Math.PI, false)
-                hintContext.fill()
+                canvas.style.cursor = "crosshair"
             }
         }
     }
 
     function handleMouseUpCanvas(e) {
-        if (e.button === 0) {
+        if (e.button === 0 && mouseDownCanvas) {
             mouseDownCanvas = false
 
             if (selectedTool === "rect") {
@@ -155,10 +161,16 @@ export default function App() {
                 context.stroke()
                 context.moveTo(0, 0)
             }
+            else if (selectedTool === "mover") {
+                canvas.style.cursor = "move"
+                moverActive = true
+                moverWidth = e.pageX - formAnchor.x
+                moverHeight = e.pageY - formAnchor.y
+            }
 
-            if (selectedTool !== "text") {
+            if (selectedTool !== "text" && selectedTool !== "mover") {
                 hintContext.clearRect(0, 0, 5000, 3000)
-            } else {
+            } else if(selectedTool === "text") {
                 textInput.focus()
             }
         }
@@ -188,7 +200,7 @@ export default function App() {
                 lastPositions.push(new Position(mouseX, mouseY))
 
                 lastMouse = Date.now()
-            } else if (selectedTool === "rect" || selectedTool === "circle" || selectedTool === "selector" || selectedTool === "line") {
+            } else if (selectedTool === "rect" || selectedTool === "circle" || selectedTool === "selector" || selectedTool === "line" || selectedTool === "mover") {
                 hintContext.strokeStyle = colorValue
                 hintContext.lineWidth = strokeWidthSliderValue
 
@@ -196,13 +208,18 @@ export default function App() {
                     hintContext.setLineDash([10, 15])
                     hintContext.lineWidth = 3
                     hintContext.strokeStyle = "rgb(200, 0, 0)"
+                }
+                else if(selectedTool === "mover") {
+                    hintContext.setLineDash([10, 15])
+                    hintContext.lineWidth = 3
+                    hintContext.strokeStyle = "rgb(0, 0, 0)"
                 } else {
                     hintContext.setLineDash([])
                 }
 
                 hintContext.beginPath()
 
-                if (selectedTool === "rect" || selectedTool === "selector") {
+                if (selectedTool === "rect" || selectedTool === "selector" || selectedTool === "mover") {
                     hintContext.rect(formAnchor.x, formAnchor.y, mouseX - formAnchor.x, mouseY - formAnchor.y)
                     hintContext.stroke()
                 }
@@ -220,6 +237,17 @@ export default function App() {
                     hintContext.stroke()
                 }
             }
+        } else if (moverActive) {
+            hintContext.clearRect(0, 0, 5000, 3000)
+            hintContext.setLineDash([10, 15])
+            hintContext.lineWidth = 3
+            hintContext.strokeStyle = "rgb(0, 0, 0)"
+
+            hintContext.drawImage(canvas, formAnchor.x, formAnchor.y, moverWidth, moverHeight, e.pageX - moverWidth, e.pageY - moverHeight, moverWidth, moverHeight)
+
+            hintContext.beginPath()
+            hintContext.rect(e.pageX - moverWidth, e.pageY - moverHeight, moverWidth, moverHeight)
+            hintContext.stroke()
         }
     }
 
@@ -511,6 +539,25 @@ export default function App() {
                                         handleToolChange(e)
                                     }}/>
                                 </div>
+
+                                <div style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    justifyContent: "flex-end",
+                                    gap: 10
+                                }}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                         className="bi bi-arrows-move" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd"
+                                              d="M7.646.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 1.707V5.5a.5.5 0 0 1-1 0V1.707L6.354 2.854a.5.5 0 1 1-.708-.708l2-2zM8 10a.5.5 0 0 1 .5.5v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 .708-.708L7.5 14.293V10.5A.5.5 0 0 1 8 10zM.146 8.354a.5.5 0 0 1 0-.708l2-2a.5.5 0 1 1 .708.708L1.707 7.5H5.5a.5.5 0 0 1 0 1H1.707l1.147 1.146a.5.5 0 0 1-.708.708l-2-2zM10 8a.5.5 0 0 1 .5-.5h3.793l-1.147-1.146a.5.5 0 0 1 .708-.708l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708L14.293 8.5H10.5A.5.5 0 0 1 10 8z"/>
+                                    </svg>
+                                    <input type={"radio"} value={"mover"} name={"tool"}
+                                           style={{width: 20, height: 20, pointerEvents: "auto"}}
+                                           checked={selectedTool === "mover"} onChange={e => {
+                                        handleToolChange(e)
+                                    }}/>
+                                </div>
                             </div>
 
                             <input type={"range"} min={1} max={40} value={strokeWidthSliderValue} onChange={e => {
@@ -530,11 +577,11 @@ export default function App() {
 
                             }} style={{
                                 pointerEvents: "auto",
-                                display: ((selectedTool === "selector" || selectedTool === "text") ? "none" : "block")
+                                display: ((selectedTool === "selector" || selectedTool === "text" || selectedTool === "mover") ? "none" : "block")
                             }}/>
                             <p style={{
                                 userSelect: "none",
-                                display: ((selectedTool === "selector" || selectedTool === "text") ? "none" : "block")
+                                display: ((selectedTool === "selector" || selectedTool === "text" || selectedTool === "mover") ? "none" : "block")
                             }}>{strokeWidthSliderValue}</p>
                         </div>
 
