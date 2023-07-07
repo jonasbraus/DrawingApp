@@ -417,7 +417,7 @@ export default function Drawing(p) {
                             flexDirection: "column",
                             justifyContent: "center",
                             gap: 5,
-                            alignItems: "center",
+                            alignItems: "flex-start",
                             pointerEvents: "none"
                         }}>
 
@@ -619,6 +619,7 @@ export default function Drawing(p) {
                             }}/>
                             <p style={{
                                 userSelect: "none",
+                                marginLeft: 60,
                                 display: ((selectedTool === "selector" || selectedTool === "mover") ? "none" : "block")
                             }}>{strokeWidthSliderValue}</p>
                         </div>
