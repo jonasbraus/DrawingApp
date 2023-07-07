@@ -499,6 +499,18 @@ export default function Drawing(p) {
                         }} value={nameInput} onChange={e => {
                             setNameInput(e.currentTarget.value)
                         }}/>
+
+                        {/*Color Selector*/}
+                        <input type={"color"}
+                               style={{
+                                   pointerEvents: "auto",
+                                   borderWidth: 0,
+                                   borderRadius: 5,
+                                   boxShadow: "0 0 5px gray",
+
+                               }} onChange={e => {
+                            setColorValue(e.target.value)
+                        }} value={colorValue}/>
                     </div>
 
                     <div style={{
@@ -674,20 +686,6 @@ export default function Drawing(p) {
                                         handleToolChange(e)
                                     }}/>
                                 </div>
-
-                                {/*Color Selector*/}
-                                <input type={"color"}
-                                       style={{
-                                           pointerEvents: "auto",
-                                           borderWidth: 0,
-                                           borderRadius: 5,
-                                           boxShadow: "0 0 5px gray",
-                                           marginLeft: 20,
-                                           marginRight: 40
-
-                                       }} onChange={e => {
-                                    setColorValue(e.target.value)
-                                }} value={colorValue}/>
                             </div>
 
 
@@ -726,7 +724,8 @@ export default function Drawing(p) {
                             flexDirection: "column",
                             justifyContent: "center",
                             alignItems: "center",
-                            gap: 5
+                            gap: 5,
+                            marginTop: 20
                         }}>
 
                             {/*save button*/}
