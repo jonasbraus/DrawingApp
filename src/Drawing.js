@@ -1,5 +1,6 @@
 import './App.css';
 import {useEffect, useLayoutEffect, useRef, useState} from "react";
+import {Save} from "./Save";
 
 let mouseDownMenuBar = false
 let mouseDownCanvas = false
@@ -688,6 +689,19 @@ export default function Drawing(p) {
                                 pointerEvents: "auto"
                             }}
                                     onClick={() => {
+                                        let save = canvas.toDataURL("image/png")
+                                        let arrString = localStorage.getItem("save")
+                                        if(arrString !== null) {
+                                            let json = JSON.parse(arrString)
+                                            json.arr.push(new Save(save))
+                                            localStorage.setItem("save", JSON.stringify(json))
+                                        }
+                                        else {
+                                            let json = {
+                                                arr: [new Save(save)]
+                                            }
+                                            localStorage.setItem("save", JSON.stringify(json))
+                                        }
                                         window.location.reload()
                                     }}>
                                 Home
