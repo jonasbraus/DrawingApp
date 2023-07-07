@@ -13,8 +13,7 @@ let lastPositions = []
 let strokeWidth = 2
 let lastMouse = 0
 let eraserColor = "rgb(255, 255, 255)"
-let lastStrokeWidthPencil = 2, lastStrokeWidthEraser = 20, lastStrokeWidthRect = 2, lastStrokeWidthCircle = 2,
-    lastStrokeWidthLine = 2
+let lastStrokeWidthPencil = 2, lastStrokeWidthEraser = 20, lastStrokeWidthRect = 2, lastStrokeWidthCircle = 2, lastStrokeWidthText = 16, lastStrokeWidthLine = 2
 
 let hintCanvas
 
@@ -309,6 +308,9 @@ export default function Drawing(p) {
         } else if (e.target.value === "line") {
             setStrokeWidthSliderValue(lastStrokeWidthLine)
             strokeWidth = lastStrokeWidthLine
+        } else if(e.target.value === "text") {
+            setStrokeWidthSliderValue(lastStrokeWidthText)
+            strokeWidth = lastStrokeWidthText
         }
     }
 
@@ -344,12 +346,12 @@ export default function Drawing(p) {
                 position: "absolute",
                 top: textInputY,
                 left: textInputX,
-                fontSize: 25,
+                fontSize: strokeWidthSliderValue + "px",
                 fontFamily: "sans-serif"
             }} onKeyDown={e => {
                 if (e.key === "Enter") {
                     mouseDownCanvas = false
-                    context.font = "25px sans-serif"
+                    context.font = strokeWidthSliderValue + "px sans-serif"
                     context.textAlign = "center"
                     context.fillText(textInput.value, formAnchor.x, formAnchor.y + 10)
                     textInput.value = ""
@@ -422,6 +424,8 @@ export default function Drawing(p) {
                             <div style={{
                                 display: "flex",
                                 flexDirection: "row",
+                                alignItems: "center",
+                                justifyContent: "center"
                             }}>
 
                                 <div style={{
@@ -574,7 +578,22 @@ export default function Drawing(p) {
                                         handleToolChange(e)
                                     }}/>
                                 </div>
+
+                                {/*Color Selector*/}
+                                <input type={"color"}
+                                       style={{
+                                           pointerEvents: "auto",
+                                           borderWidth: 0,
+                                           borderRadius: 5,
+                                           boxShadow: "0 0 5px gray",
+                                           marginLeft: 20,
+                                           marginRight: 40
+
+                                       }} onChange={e => {
+                                    setColorValue(e.target.value)
+                                }} value={colorValue}/>
                             </div>
+
 
                             <input type={"range"} min={1} max={40} value={strokeWidthSliderValue} onChange={e => {
                                 setStrokeWidthSliderValue(e.currentTarget.value)
@@ -590,29 +609,20 @@ export default function Drawing(p) {
                                 } else if (selectedTool === "line") {
                                     lastStrokeWidthLine = strokeWidth
                                 }
+                                else if(selectedTool === "text") {
+                                    lastStrokeWidthText = strokeWidth
+                                }
 
                             }} style={{
                                 pointerEvents: "auto",
-                                display: ((selectedTool === "selector" || selectedTool === "text" || selectedTool === "mover") ? "none" : "block")
+                                display: ((selectedTool === "selector" || selectedTool === "mover") ? "none" : "block")
                             }}/>
                             <p style={{
                                 userSelect: "none",
-                                display: ((selectedTool === "selector" || selectedTool === "text" || selectedTool === "mover") ? "none" : "block")
+                                display: ((selectedTool === "selector" || selectedTool === "mover") ? "none" : "block")
                             }}>{strokeWidthSliderValue}</p>
                         </div>
 
-                        {/*Color Selector*/}
-                        <input type={"color"}
-                               style={{
-                                   pointerEvents: "auto",
-                                   borderWidth: 0,
-                                   borderRadius: 5,
-                                   boxShadow: "0 0 5px gray",
-                                   marginLeft: 100
-
-                               }} onChange={e => {
-                            setColorValue(e.target.value)
-                        }} value={colorValue}/>
 
                         <div style={{
                             display: "flex",
