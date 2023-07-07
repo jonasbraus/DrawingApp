@@ -622,39 +622,6 @@ export default function Drawing(p) {
                             gap: 5
                         }}>
 
-                            {/*open button*/}
-                            <button style={{
-                                padding: 10,
-                                backgroundColor: "white",
-                                borderRadius: 15,
-                                marginLeft: 10,
-                                boxShadow: "0 0 5px gray",
-                                borderWidth: 0,
-                                width: 100,
-                                height: 60,
-                                pointerEvents: "auto"
-                            }}
-                                    onClick={onOpenButtonClick}>
-                                Open
-                            </button>
-                            <input onChange={() => {
-                                let file = fileInput.files[0]
-
-                                let reader = new FileReader()
-                                reader.onload = e => {
-                                    let image = new Image()
-                                    image.onload = () => {
-                                        context.clearRect(0, 0, p.width, p.height)
-                                        context.drawImage(image, 0, 0)
-                                    }
-                                    image.src = e.target.result
-                                }
-                                reader.readAsText(file)
-
-                            }} id={"fileInput"} type={"file"} accept={".redraw"}
-                                   style={{pointerEvents: "auto", display: "none"}}/>
-
-
                             {/*save button*/}
                             <button style={{
                                 padding: 10,
@@ -728,6 +695,24 @@ export default function Drawing(p) {
                                         window.location.reload()
                                     }}>
                                 Save / Home
+                            </button>
+
+                            {/*home button*/}
+                            <button style={{
+                                padding: 10,
+                                backgroundColor: "white",
+                                borderRadius: 15,
+                                marginLeft: 10,
+                                boxShadow: "0 0 5px gray",
+                                borderWidth: 0,
+                                width: 100,
+                                height: 60,
+                                pointerEvents: "auto"
+                            }}
+                                    onClick={() => {
+                                        window.location.reload()
+                                    }}>
+                                Discard / Home
                             </button>
                         </div>
                     </div>

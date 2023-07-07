@@ -1,6 +1,8 @@
 import Drawing from "./Drawing";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import StartForm from "./StartForm";
+
+let fileInput
 
 export default function App() {
 
@@ -13,6 +15,11 @@ export default function App() {
     const [loadIn, setLoadIn] = useState(null)
     const [loadInId, setLoadInId] = useState(-1)
     const [shouldUpdate, setShouldUpdate] = useState(false)
+
+    useEffect(() => {
+
+        fileInput = document.getElementById("fileInput")
+    }, [])
 
     function onCreateCanvas(inputWidth, inputHeight) {
         setWidthDrawing(parseInt(inputWidth.value))
@@ -35,10 +42,36 @@ export default function App() {
         image.src = save
     }
 
-   return (
-       <div>
-            <StartForm onLoadIn={onLoadIn} show={showForm} onCreateCanvas={onCreateCanvas}/>
-            <Drawing shouldUpdate={shouldUpdate} loadInId={loadInId} loadIn={loadIn} show={showDrawing} width={widthDrawing} height={heightDrawing}/>
-       </div>
+    function onOpenButtonClick () {
+        fileInput.click()
+    }
+
+    return (
+        <div>
+            <StartForm onOpenButtonClick={onOpenButtonClick} onLoadIn={onLoadIn} show={showForm} onCreateCanvas={onCreateCanvas}/>
+            <Drawing shouldUpdate={shouldUpdate} loadInId={loadInId} loadIn={loadIn} show={showDrawing}
+                     width={widthDrawing} height={heightDrawing}/>
+            <input onChange={() => {
+                let file = fileInput.files[0]
+
+                let reader = new FileReader()
+                reader.onload = e => {
+                    let image = new Image()
+                    image.onload = () => {
+                        setWidthDrawing(image.width)
+                        setHeightDrawing(image.height)
+                        setLoadIn(e.target.result)
+                        setLoadInId(-1)
+                        setShowForm("none")
+                        setShowDrawing("block")
+                        setShouldUpdate(!shouldUpdate)
+                    }
+                    image.src = e.target.result
+                }
+                reader.readAsText(file)
+
+            }} id={"fileInput"} type={"file"} accept={".redraw"}
+                   style={{pointerEvents: "auto", display: "none"}}/>
+        </div>
     );
 }

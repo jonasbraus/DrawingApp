@@ -80,6 +80,21 @@ export default function StartForm(p) {
                     </button>
                 </div>
 
+                <button style={{
+                    padding: 10,
+                    backgroundColor: "white",
+                    borderRadius: 15,
+                    marginLeft: 10,
+                    boxShadow: "0 0 5px gray",
+                    borderWidth: 0,
+                    width: 100,
+                    height: 60,
+                    pointerEvents: "auto"
+                }}
+                        onClick={p.onOpenButtonClick}>
+                    Open
+                </button>
+
                 <h3 style={{userSelect: "none"}}>Recent:</h3>
                 <div style={{
                     display: "flex",
