@@ -152,8 +152,7 @@ export default function App() {
                 context.lineWidth = strokeWidthSliderValue
                 context.stroke()
             } else if (selectedTool === "selector") {
-                context.fillStyle = eraserColor
-                context.fillRect(formAnchor.x, formAnchor.y, e.pageX - formAnchor.x, e.pageY - formAnchor.y)
+                context.clearRect(formAnchor.x, formAnchor.y, e.pageX - formAnchor.x, e.pageY - formAnchor.y)
             } else if (selectedTool === "line") {
                 context.strokeStyle = colorValue
                 context.beginPath()
