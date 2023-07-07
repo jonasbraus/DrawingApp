@@ -630,7 +630,8 @@ export default function Drawing(p) {
                                 marginLeft: 10,
                                 boxShadow: "0 0 5px gray",
                                 borderWidth: 0,
-                                width: 60,
+                                width: 100,
+                                height: 60,
                                 pointerEvents: "auto"
                             }}
                                     onClick={onOpenButtonClick}>
@@ -662,11 +663,12 @@ export default function Drawing(p) {
                                 marginLeft: 10,
                                 boxShadow: "0 0 5px gray",
                                 borderWidth: 0,
-                                width: 60,
+                                width: 100,
+                                height: 60,
                                 pointerEvents: "auto"
                             }}
                                     onClick={onSaveButtonClick}>
-                                Save
+                                Download Save
                             </button>
 
 
@@ -678,7 +680,8 @@ export default function Drawing(p) {
                                 marginLeft: 10,
                                 boxShadow: "0 0 5px gray",
                                 borderWidth: 0,
-                                width: 60,
+                                width: 100,
+                                height: 60,
                                 pointerEvents: "auto"
                             }}
                                     onClick={onExportButtonClick}>
@@ -693,7 +696,8 @@ export default function Drawing(p) {
                                 marginLeft: 10,
                                 boxShadow: "0 0 5px gray",
                                 borderWidth: 0,
-                                width: 60,
+                                width: 100,
+                                height: 60,
                                 pointerEvents: "auto"
                             }}
                                     onClick={() => {
@@ -723,7 +727,7 @@ export default function Drawing(p) {
                                         }
                                         window.location.reload()
                                     }}>
-                                Home
+                                Save / Home
                             </button>
                         </div>
                     </div>

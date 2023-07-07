@@ -96,10 +96,40 @@ export default function StartForm(p) {
                             display: "flex",
                             justifyContent: "center",
                             alignItems: "center",
-                            textAlign: "center"
+                            textAlign: "center",
+                            flexDirection: "column"
+                        }} onClick={(f) => {
+                            if(f.target === f.currentTarget) {
+                                p.onLoadIn(e.content, e.id)
+                            }
+                        }}><p style={{userSelect: "none", pointerEvents: "none"}}>{e.name}</p>
+                        <button style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            padding: 5,
+                            background: "rgba(0, 0, 0, 0)",
+                            borderWidth: 0,
+                            borderRadius: 5,
+                            boxShadow: "0 0 5px gray"
                         }} onClick={() => {
-                            p.onLoadIn(e.content, e.id)
-                        }}><p style={{userSelect: "none", pointerEvents: "none"}}>{e.name}</p></div>
+                            let saves = JSON.parse(localStorage.getItem("save"))
+                            let arr = saves.arr
+                            let newArr = []
+                            for(let i = 0; i < arr.length; i++) {
+                                if(arr[i].id !== e.id) {
+                                    newArr.push(arr[i])
+                                }
+                                localStorage.setItem("save", JSON.stringify({arr: newArr}))
+                                setSaves(newArr)
+                            }
+                        }}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                 className="bi bi-x-circle-fill" viewBox="0 0 16 16">
+                                <path
+                                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
+                            </svg></button>
+                        </div>
                     ))}
                 </div>
             </div>
