@@ -20,6 +20,7 @@ export default function App() {
     useEffect(() => {
 
         fileInput = document.getElementById("fileInput")
+        document.title = "ReDraw"
     }, [])
 
     function onCreateCanvas(inputWidth, inputHeight) {
