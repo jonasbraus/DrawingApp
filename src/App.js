@@ -123,7 +123,7 @@ export default function App() {
             }
             else {
                 context.clearRect(formAnchor.x, formAnchor.y, moverWidth, moverHeight)
-                context.drawImage(hintCanvas, e.pageX - moverWidth + 2, e.pageY - moverHeight + 2, moverWidth - 4, moverHeight - 4, e.pageX - moverWidth, e.pageY - moverHeight, moverWidth, moverHeight)
+                context.drawImage(hintCanvas, e.pageX - moverWidth + 2, e.pageY - moverHeight + 2, moverWidth - 4, moverHeight - 4, e.pageX - moverWidth + 2, e.pageY - moverHeight + 2, moverWidth - 4, moverHeight - 4)
                 hintContext.clearRect(0, 0, 5000, 3000)
                 moverActive = false
                 mouseDownCanvas = false
@@ -169,12 +169,12 @@ export default function App() {
                 moverWidth = e.pageX - formAnchor.x
                 moverHeight = e.pageY - formAnchor.y
             }
+        }
 
-            if (selectedTool !== "text" && selectedTool !== "mover") {
-                hintContext.clearRect(0, 0, 5000, 3000)
-            } else {
-                textInput.focus()
-            }
+        if (selectedTool !== "text") {
+            hintContext.clearRect(0, 0, 5000, 3000)
+        } else {
+            textInput.focus()
         }
     }
 
