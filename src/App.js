@@ -123,7 +123,7 @@ export default function App() {
             }
             else {
                 context.clearRect(formAnchor.x, formAnchor.y, moverWidth, moverHeight)
-                context.drawImage(hintCanvas, e.pageX - moverWidth + 2, e.pageY - moverHeight + 2, moverWidth - 4, moverHeight - 4, e.pageX - moverWidth + 2, e.pageY - moverHeight + 2, moverWidth - 4, moverHeight - 4)
+                context.drawImage(hintCanvas, e.pageX - moverWidth + 3, e.pageY - moverHeight + 3, moverWidth - 6, moverHeight - 6, e.pageX - moverWidth + 3, e.pageY - moverHeight + 3, moverWidth - 6, moverHeight - 6)
                 hintContext.clearRect(0, 0, 5000, 3000)
                 moverActive = false
                 mouseDownCanvas = false
@@ -241,15 +241,8 @@ export default function App() {
             }
         } else if (moverActive) {
             hintContext.clearRect(0, 0, 5000, 3000)
-            hintContext.setLineDash([10, 15])
-            hintContext.lineWidth = 3
-            hintContext.strokeStyle = "rgb(0, 0, 0)"
 
             hintContext.drawImage(canvas, formAnchor.x, formAnchor.y, moverWidth, moverHeight, e.pageX - moverWidth, e.pageY - moverHeight, moverWidth, moverHeight)
-
-            hintContext.beginPath()
-            hintContext.rect(e.pageX - moverWidth, e.pageY - moverHeight, moverWidth, moverHeight)
-            hintContext.stroke()
         }
     }
 
