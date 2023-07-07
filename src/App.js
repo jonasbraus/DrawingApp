@@ -246,6 +246,17 @@ export default function App() {
     }
 
     function onExportButtonClick(e) {
+
+        let tempCanvas = document.createElement("canvas")
+        tempCanvas.width = 5000
+        tempCanvas.height = 3000
+        let tempContext = tempCanvas.getContext("2d")
+        tempContext.fillStyle = "rgb(255, 255, 255)"
+        tempContext.fillRect(0, 0, 5000, 3000)
+        tempContext.drawImage(canvas, 0, 0, 5000, 3000, 0, 0, 5000, 3000)
+
+        context.drawImage(tempCanvas, 0, 0, 5000, 3000, 0, 0, 5000, 3000)
+
         let img = canvas.toDataURL("image/png")
         let image = new Image()
         image.src = "data:image/png;base64," + img
@@ -621,6 +632,7 @@ export default function App() {
                                 reader.onload = e => {
                                     let image = new Image()
                                     image.onload = () => {
+                                        context.clearRect(0, 0, 5000, 3000)
                                         context.drawImage(image, 0, 0)
                                     }
                                     image.src = e.target.result
