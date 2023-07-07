@@ -80,6 +80,7 @@ export default function StartForm(p) {
                     </button>
                 </div>
 
+                <h3 style={{userSelect: "none"}}>Open From File:</h3>
                 <button style={{
                     padding: 10,
                     backgroundColor: "white",
