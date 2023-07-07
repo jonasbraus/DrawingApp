@@ -31,14 +31,14 @@ let moverWidth = 0, moverHeight = 0
 export default function Drawing(p) {
 
     useEffect(() => {
-        if(p.show !== "none") {
+        if (p.show !== "none") {
             let body = document.querySelector("body")
             body.style.background = "rgb(200, 200, 200)"
         }
     })
 
 
-    useLayoutEffect(() => {
+    useEffect(() => {
 
         canvas = document.getElementById("canvas")
         context = canvas.getContext("2d")
@@ -51,6 +51,17 @@ export default function Drawing(p) {
 
         hintCanvas = document.getElementById("hintCanvas")
         hintContext = hintCanvas.getContext("2d")
+
+        if (p.loadIn !== null) {
+            console.log("test")
+            let image = new Image()
+            image.onload = () => {
+                console.log("test2")
+                context.clearRect(0, 0, p.width, p.height)
+                context.drawImage(image, 0, 0)
+            }
+            image.src = p.loadIn
+        }
 
 
         setInterval(() => {
@@ -76,7 +87,7 @@ export default function Drawing(p) {
             }
         }, 1)
 
-    }, [])
+    }, [p.shouldUpdate])
 
     const [menuBarLeft, setMenuBarLeft] = useState(50)
     const [menuBarTop, setMenuBarTop] = useState(50)
@@ -98,7 +109,7 @@ export default function Drawing(p) {
 
     function handleMouseDownCanvas(e) {
         if (e.button === 0) {
-            if(!moverActive) {
+            if (!moverActive) {
                 mouseDownCanvas = true
                 hintContext.clearRect(0, 0, p.width, p.height)
                 setShowTextInput(false)
@@ -124,8 +135,7 @@ export default function Drawing(p) {
                     hintContext.arc(e.pageX, e.pageY, 5, 0, 2 * Math.PI, false)
                     hintContext.fill()
                 }
-            }
-            else {
+            } else {
                 context.clearRect(formAnchor.x, formAnchor.y, moverWidth, moverHeight)
                 context.drawImage(hintCanvas, e.pageX - moverWidth + 3, e.pageY - moverHeight + 3, moverWidth - 6, moverHeight - 6, e.pageX - moverWidth + 3, e.pageY - moverHeight + 3, moverWidth - 6, moverHeight - 6)
                 hintContext.clearRect(0, 0, p.width, p.height)
@@ -165,8 +175,7 @@ export default function Drawing(p) {
                 context.lineTo(e.pageX, e.pageY)
                 context.stroke()
                 context.moveTo(0, 0)
-            }
-            else if (selectedTool === "mover") {
+            } else if (selectedTool === "mover") {
                 canvas.style.cursor = "move"
                 moverActive = true
                 moverWidth = e.pageX - formAnchor.x
@@ -213,8 +222,7 @@ export default function Drawing(p) {
                     hintContext.setLineDash([10, 15])
                     hintContext.lineWidth = 3
                     hintContext.strokeStyle = "rgb(200, 0, 0)"
-                }
-                else if(selectedTool === "mover") {
+                } else if (selectedTool === "mover") {
                     hintContext.setLineDash([10, 15])
                     hintContext.lineWidth = 3
                     hintContext.strokeStyle = "rgb(0, 0, 0)"
@@ -269,8 +277,7 @@ export default function Drawing(p) {
         downLink.click()
     }
 
-    function onSaveButtonClick()
-    {
+    function onSaveButtonClick() {
         let img = canvas.toDataURL("image/png")
         let blob = new Blob([img], {type: "text/plain"})
         var url = URL.createObjectURL(blob)
@@ -643,7 +650,8 @@ export default function Drawing(p) {
                                 }
                                 reader.readAsText(file)
 
-                            }} id={"fileInput"} type={"file"} accept={".redraw"} style={{pointerEvents: "auto", display: "none"}}/>
+                            }} id={"fileInput"} type={"file"} accept={".redraw"}
+                                   style={{pointerEvents: "auto", display: "none"}}/>
 
 
                             {/*save button*/}
@@ -691,12 +699,23 @@ export default function Drawing(p) {
                                     onClick={() => {
                                         let save = canvas.toDataURL("image/png")
                                         let arrString = localStorage.getItem("save")
-                                        if(arrString !== null) {
+                                        if (arrString !== null) {
                                             let json = JSON.parse(arrString)
-                                            json.arr.push(new Save(save))
-                                            localStorage.setItem("save", JSON.stringify(json))
-                                        }
-                                        else {
+                                            if (p.loadInId === -1) {
+                                                json.arr.push(new Save(save))
+                                                localStorage.setItem("save", JSON.stringify(json))
+                                            } else {
+
+                                                for(let i = 0; i < json.arr.length; i++) {
+
+                                                    if(parseInt(json.arr[i].id) === p.loadInId) {
+                                                        json.arr[i] = new Save(save)
+                                                        localStorage.setItem("save", JSON.stringify(json))
+                                                        break
+                                                    }
+                                                }
+                                            }
+                                        } else {
                                             let json = {
                                                 arr: [new Save(save)]
                                             }

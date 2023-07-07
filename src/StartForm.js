@@ -98,7 +98,7 @@ export default function StartForm(p) {
                             alignItems: "center",
                             textAlign: "center"
                         }} onClick={() => {
-                            console.log("test")
+                            p.onLoadIn(e.content, e.id)
                         }}><p style={{userSelect: "none", pointerEvents: "none"}}>{e.name}</p></div>
                     ))}
                 </div>
