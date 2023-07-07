@@ -1,6 +1,8 @@
 import './App.css';
 import {useEffect, useLayoutEffect, useRef, useState} from "react";
 import {Save} from "./Save";
+import {Action} from "./Action";
+import {ActionType} from "./ActionType";
 
 let mouseDownMenuBar = false
 let mouseDownCanvas = false
@@ -25,6 +27,8 @@ let fileInput
 let moverActive = false
 
 let moverWidth = 0, moverHeight = 0
+
+let lastActions = []
 
 
 export default function Drawing(p) {
@@ -56,10 +60,10 @@ export default function Drawing(p) {
         }
 
         if (p.loadIn !== null) {
-            console.log("test")
+
             let image = new Image()
             image.onload = () => {
-                console.log("test2")
+
                 context.clearRect(0, 0, p.width, p.height)
                 context.drawImage(image, 0, 0)
             }
@@ -160,6 +164,7 @@ export default function Drawing(p) {
                 context.rect(formAnchor.x, formAnchor.y, e.pageX - formAnchor.x, e.pageY - formAnchor.y)
                 context.lineWidth = strokeWidthSliderValue
                 context.stroke()
+                lastActions.push(new Action(ActionType.drawRect, new Position(formAnchor.x, formAnchor.y), new Position(e.pageX - formAnchor.x, e.pageY - formAnchor.y), strokeWidthSliderValue))
 
             } else if (selectedTool === "circle") {
                 context.strokeStyle = colorValue
@@ -169,6 +174,8 @@ export default function Drawing(p) {
                 context.arc(formAnchor.x + radius, formAnchor.y + yRad, Math.abs(radius), 0, 2 * Math.PI, false)
                 context.lineWidth = strokeWidthSliderValue
                 context.stroke()
+                lastActions.push(new Action(ActionType.drawCircle, new Position(formAnchor.x + radius, formAnchor.y + yRad), new Position(radius, yRad), strokeWidthSliderValue))
+
             } else if (selectedTool === "selector") {
                 context.clearRect(formAnchor.x, formAnchor.y, e.pageX - formAnchor.x, e.pageY - formAnchor.y)
             } else if (selectedTool === "line") {
@@ -179,6 +186,8 @@ export default function Drawing(p) {
                 context.lineTo(e.pageX, e.pageY)
                 context.stroke()
                 context.moveTo(0, 0)
+                lastActions.push(new Action(ActionType.drawLine, new Position(formAnchor.x, formAnchor.y), new Position(e.pageX, e.pageY), strokeWidthSliderValue))
+
             } else if (selectedTool === "mover") {
                 canvas.style.cursor = "move"
                 moverActive = true
@@ -366,9 +375,14 @@ export default function Drawing(p) {
                     context.font = strokeWidthSliderValue + "px sans-serif"
                     context.textAlign = "center"
                     context.fillText(textInput.value, formAnchor.x, formAnchor.y + 10)
-                    textInput.value = ""
                     setShowTextInput(false)
                     hintContext.clearRect(0, 0, p.width, p.height)
+
+                    let action = new Action(ActionType.drawText, new Position(formAnchor.x, formAnchor.y + 10), new Position(0, 0), strokeWidthSliderValue)
+                    action.text = textInput.value
+                    lastActions.push(action)
+
+                    textInput.value = ""
                 }
             }}/>
 
@@ -419,15 +433,73 @@ export default function Drawing(p) {
                     </div>
 
 
-                    <input type={"text"} placeholder={"Enter Name"} style={{
-                        borderWidth: 0,
-                        boxShadow: "0 0 5px gray",
-                        borderRadius: 15,
-                        padding: 10,
-                        pointerEvents: "auto"
-                    }} value={nameInput} onChange={e => {
-                        setNameInput(e.currentTarget.value)
-                    }}/>
+
+                    <div style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        gap: 20
+                    }}>
+                        <div style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            borderRadius: 15,
+                            boxShadow: "0 0 5px gray",
+                            padding: 10,
+                            pointerEvents: "auto"
+                        }} onClick={() => {
+                            if(lastActions.length > 0) {
+                                let current = lastActions.pop()
+                                console.log(lastActions)
+                                context.strokeStyle = eraserColor
+                                context.lineWidth = current.strokeWidth + 2
+                                if (current.actionType === ActionType.drawLine) {
+                                    context.beginPath()
+                                    context.moveTo(current.anchor.x, current.anchor.y)
+                                    context.lineTo(current.info.x, current.info.y)
+                                    context.stroke()
+                                    context.moveTo(0, 0)
+                                }
+                                else if(current.actionType === ActionType.drawRect) {
+                                    context.beginPath()
+                                    context.rect(current.anchor.x, current.anchor.y, current.info.x, current.info.y)
+                                    context.stroke()
+                                }
+                                else if(current.actionType === ActionType.drawCircle) {
+                                    context.beginPath()
+                                    context.arc(current.anchor.x, current.anchor.y, Math.abs(current.info.x), 0, 2 * Math.PI, false)
+                                    context.stroke()
+                                }
+                                else if(current.actionType === ActionType.drawText) {
+                                    context.fillStyle = eraserColor
+                                    context.font = current.strokeWidth + "px sans-serif"
+                                    context.textAlign = "center"
+                                    context.lineWidth = 2
+                                    context.fillText(current.text, current.anchor.x, current.anchor.y)
+                                    context.strokeText(current.text, current.anchor.x, current.anchor.y)
+                                }
+                            }
+                        }}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                 className="bi bi-arrow-counterclockwise" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                      d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"/>
+                                <path
+                                    d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"/>
+                            </svg>
+                        </div>
+
+                        <input type={"text"} placeholder={"Enter Name"} style={{
+                            borderWidth: 0,
+                            boxShadow: "0 0 5px gray",
+                            borderRadius: 15,
+                            padding: 10,
+                            pointerEvents: "auto"
+                        }} value={nameInput} onChange={e => {
+                            setNameInput(e.currentTarget.value)
+                        }}/>
+                    </div>
 
                     <div style={{
                         display: menuBarShown ? "flex" : "none",
