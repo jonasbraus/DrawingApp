@@ -15,6 +15,8 @@ let eraserColor = "rgb(255, 255, 255)"
 let lastStrokeWidthPencil = 2, lastStrokeWidthEraser = 20, lastStrokeWidthRect = 2, lastStrokeWidthCircle = 2,
     lastStrokeWidthLine = 2
 
+let hintCanvas
+
 let formAnchor = null;
 let textInput
 
@@ -42,7 +44,7 @@ export default function App() {
         downLink.className = "no-display"
         textInput = document.getElementById("textInput")
 
-        let hintCanvas = document.getElementById("hintCanvas")
+        hintCanvas = document.getElementById("hintCanvas")
         hintContext = hintCanvas.getContext("2d")
 
         window.scrollTo((5000 / window.innerWidth) * 500, (3000 / window.innerHeight) * 300)
@@ -120,8 +122,8 @@ export default function App() {
                 }
             }
             else {
-                context.drawImage(canvas, formAnchor.x, formAnchor.y, moverWidth, moverHeight, e.pageX - moverWidth, e.pageY - moverHeight, moverWidth, moverHeight)
                 context.clearRect(formAnchor.x, formAnchor.y, moverWidth, moverHeight)
+                context.drawImage(hintCanvas, e.pageX - moverWidth + 2, e.pageY - moverHeight + 2, moverWidth - 4, moverHeight - 4, e.pageX - moverWidth, e.pageY - moverHeight, moverWidth, moverHeight)
                 hintContext.clearRect(0, 0, 5000, 3000)
                 moverActive = false
                 mouseDownCanvas = false
