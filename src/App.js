@@ -172,7 +172,7 @@ export default function App() {
 
             if (selectedTool !== "text" && selectedTool !== "mover") {
                 hintContext.clearRect(0, 0, 5000, 3000)
-            } else if(selectedTool === "text") {
+            } else {
                 textInput.focus()
             }
         }
