@@ -51,6 +51,10 @@ export default function Drawing(p) {
         hintCanvas = document.getElementById("hintCanvas")
         hintContext = hintCanvas.getContext("2d")
 
+        if(p.name !== "") {
+            setNameInput(p.name)
+        }
+
         if (p.loadIn !== null) {
             console.log("test")
             let image = new Image()
@@ -97,6 +101,7 @@ export default function Drawing(p) {
     const [textInputX, setTextInputX] = useState(0)
     const [textInputY, setTextInputY] = useState(0)
     const [showTextInput, setShowTextInput] = useState(false)
+    const [nameInput, setNameInput] = useState("")
 
 
     class Position {
@@ -272,7 +277,12 @@ export default function Drawing(p) {
         let image = new Image()
         image.src = "data:image/png;base64," + img
         downLink.href = img
-        downLink.download = "export.png"
+        if(nameInput !== "") {
+            downLink.download = nameInput + ".png"
+        }
+        else {
+            downLink.download = "export.png"
+        }
         downLink.click()
     }
 
@@ -281,13 +291,15 @@ export default function Drawing(p) {
         let blob = new Blob([img], {type: "text/plain"})
         var url = URL.createObjectURL(blob)
         downLink.href = url
-        downLink.download = "save.redraw"
+        if(nameInput !== "") {
+            downLink.download = nameInput + ".redraw"
+        }
+        else {
+            downLink.download = "save.redraw"
+        }
         downLink.click()
     }
 
-    function onOpenButtonClick() {
-        fileInput.click()
-    }
 
     function handleToolChange(e) {
         setShowTextInput(false)
@@ -405,6 +417,18 @@ export default function Drawing(p) {
                                 d="M2 8a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm0-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
                         </svg>
                     </div>
+
+
+                    <input type={"text"} placeholder={"Enter Name"} style={{
+                        borderWidth: 0,
+                        boxShadow: "0 0 5px gray",
+                        borderRadius: 15,
+                        padding: 10,
+                        pointerEvents: "auto"
+                    }} value={nameInput} onChange={e => {
+                        setNameInput(e.currentTarget.value)
+                    }}/>
+
                     <div style={{
                         display: menuBarShown ? "flex" : "none",
                         justifyContent: "center",
@@ -684,14 +708,14 @@ export default function Drawing(p) {
                                         if (arrString !== null) {
                                             let json = JSON.parse(arrString)
                                             if (p.loadInId === -1) {
-                                                json.arr.push(new Save(save))
+                                                json.arr.push(new Save(save, nameInput))
                                                 localStorage.setItem("save", JSON.stringify(json))
                                             } else {
 
                                                 for(let i = 0; i < json.arr.length; i++) {
 
                                                     if(parseInt(json.arr[i].id) === p.loadInId) {
-                                                        json.arr[i] = new Save(save)
+                                                        json.arr[i] = new Save(save, nameInput)
                                                         localStorage.setItem("save", JSON.stringify(json))
                                                         break
                                                     }
@@ -699,7 +723,7 @@ export default function Drawing(p) {
                                             }
                                         } else {
                                             let json = {
-                                                arr: [new Save(save)]
+                                                arr: [new Save(save, nameInput)]
                                             }
                                             localStorage.setItem("save", JSON.stringify(json))
                                         }

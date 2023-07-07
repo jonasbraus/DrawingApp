@@ -119,7 +119,7 @@ export default function StartForm(p) {
                             minWidth: 80,
                         }} onClick={(f) => {
                             if(f.target === f.currentTarget) {
-                                p.onLoadIn(e.content, e.id)
+                                p.onLoadIn(e.content, e.id, e.name)
                             }
                         }}><p style={{userSelect: "none", pointerEvents: "none"}}>{e.name}</p>
                         <button style={{

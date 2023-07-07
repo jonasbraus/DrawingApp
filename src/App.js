@@ -15,6 +15,7 @@ export default function App() {
     const [loadIn, setLoadIn] = useState(null)
     const [loadInId, setLoadInId] = useState(-1)
     const [shouldUpdate, setShouldUpdate] = useState(false)
+    const [nameCurrent, setNameCurrent] = useState("")
 
     useEffect(() => {
 
@@ -28,7 +29,7 @@ export default function App() {
         setShowDrawing("block")
     }
 
-    function onLoadIn(save, id) {
+    function onLoadIn(save, id, name) {
         let image = new Image()
         image.onload = () => {
             setWidthDrawing(image.width)
@@ -37,6 +38,7 @@ export default function App() {
             setShowForm("none")
             setShowDrawing("block")
             setLoadInId(id)
+            setNameCurrent(name)
             setShouldUpdate(!shouldUpdate)
         }
         image.src = save
@@ -49,7 +51,7 @@ export default function App() {
     return (
         <div>
             <StartForm onOpenButtonClick={onOpenButtonClick} onLoadIn={onLoadIn} show={showForm} onCreateCanvas={onCreateCanvas}/>
-            <Drawing shouldUpdate={shouldUpdate} loadInId={loadInId} loadIn={loadIn} show={showDrawing}
+            <Drawing name={nameCurrent} shouldUpdate={shouldUpdate} loadInId={loadInId} loadIn={loadIn} show={showDrawing}
                      width={widthDrawing} height={heightDrawing}/>
             <input onChange={() => {
                 let file = fileInput.files[0]
@@ -65,6 +67,7 @@ export default function App() {
                         setShowForm("none")
                         setShowDrawing("block")
                         setShouldUpdate(!shouldUpdate)
+                        setNameCurrent(file.name)
                     }
                     image.src = e.target.result
                 }
