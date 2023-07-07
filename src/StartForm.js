@@ -37,6 +37,7 @@ export default function StartForm(p) {
                 borderRadius: 15,
                 boxShadow: "0 0 5px gray",
                 display: "flex",
+                maxWidth: "40vw",
                 flexDirection: "column",
                 justifyContent: "space-around",
                 alignItems: "center",
@@ -86,6 +87,7 @@ export default function StartForm(p) {
                     alignItems: "center",
                     alignContent: "center",
                     justifyItems: "center",
+                    flexWrap: "wrap",
                     gap: 5
                 }}>
                     {saves.map(e => (
@@ -97,7 +99,8 @@ export default function StartForm(p) {
                             justifyContent: "center",
                             alignItems: "center",
                             textAlign: "center",
-                            flexDirection: "column"
+                            flexDirection: "column",
+                            minWidth: 80,
                         }} onClick={(f) => {
                             if(f.target === f.currentTarget) {
                                 p.onLoadIn(e.content, e.id)
